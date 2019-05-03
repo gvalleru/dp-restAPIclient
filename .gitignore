@@ -107,3 +107,4 @@ venv.bak/
 
 temp.py
 delete_certs.txt
+config.yaml

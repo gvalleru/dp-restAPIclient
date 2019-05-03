@@ -24,7 +24,7 @@ class DpRestClient:
 
         return json.loads(res.content)
 
-    def _get_cert_from_val_cred(self, val_cred, cert_obj):
+    def _get_cert_from_val_cred(self, domain, val_cred, cert_obj):
         crypto_val_cred = None
         certs = None
 
@@ -90,7 +90,7 @@ class DpRestClient:
         res_dict = self._dp_api_resp_dict(url)
         if isinstance(res_dict["CryptoValCred"], list):
             for CryptoValCred in res_dict["CryptoValCred"]:
-                final_crypto_val_cred, final_certs = self._get_cert_from_val_cred(CryptoValCred, cert_obj)
+                final_crypto_val_cred, final_certs = self._get_cert_from_val_cred(domain, CryptoValCred, cert_obj)
                 if final_crypto_val_cred is not None:
                     resp_code, resp_content = self._update_certs_in_val_cred(domain, CryptoValCred, final_certs)
                     if resp_code == 200:
@@ -98,7 +98,8 @@ class DpRestClient:
                                                                        domain)
 
         else:
-            final_crypto_val_cred, final_certs = self._get_cert_from_val_cred(res_dict["CryptoValCred"],
+            final_crypto_val_cred, final_certs = self._get_cert_from_val_cred(domain,
+                                                                              res_dict["CryptoValCred"],
                                                                               cert_obj)
             if final_certs is not None:
                 resp_code, resp_content = self._update_certs_in_val_cred(domain, res_dict["CryptoValCred"], final_certs)

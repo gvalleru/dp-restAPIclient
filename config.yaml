@@ -1,21 +1,21 @@
-ip1:
-  hostname: host1
+10.32.35.10:
+  hostname: dmzdp3.sjc1.prod.ce
   username: admin
-  password: pass
+  password: Cashedge1$
   port: 5554
   proxies:
-    https: http://localhost:3128
-ip2:
-  hostname: host2
+    https: http://proxy.mes1.prod.ce:3128
+10.32.35.11:
+  hostname: dmzdp4.sjc1.prod.ce
   username: admin
-  password: pass
+  password: Cashedge1$
   port: 5554
   proxies:
-    https: http://localhost:3128
-ip3:
-  hostname: host3
+    https: http://proxy.mes1.prod.ce:3128
+10.64.1.101:
+  hostname: dmzdp3.mes1.prod.ce
   username: admin
-  password: pass
+  password: Cashedge1$
   port: 5554
   proxies:
-    https: http://localhost:3128
+    https: http://proxy.mes1.prod.ce:3128

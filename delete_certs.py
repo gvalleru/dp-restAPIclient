@@ -2,7 +2,7 @@ import dpRESTclient
 import yaml
 
 
-conf_yaml = 'config.yaml'
+conf_yaml = 'config.template.yaml'
 with open(conf_yaml, 'r') as c:
     config = yaml.load(c)
 
@@ -25,7 +25,6 @@ with open('delete_certs.txt') as f:
                                                                                              host)
             dp = dpRESTclient.DpRestClient(host, port, username, password, proxies)
             dp.remove_cert_in_crypto_val_cred(domain, cert)
-            dp.save_config(domain)
             dp.remove_cert_from_domain(domain, cert)
             dp.save_config(domain)
 
