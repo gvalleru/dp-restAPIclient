@@ -24,6 +24,19 @@ class DpRestClient:
 
         return json.loads(res.content)
 
+    def get_domains_list(self):
+        url = "https://" + self.host + ":" + self.port + "/mgmt/domains/config/"
+        domains_config = self._dp_api_resp_dict(url)
+        domains = []
+        for domain_config in domains_config["domain"]:
+            domains.append(domain_config["name"])
+        return domains
+
+    def get_object_status(self, domain, class_name, object_name):
+        path = "/mgmt/config/" + domain + "/" + class_name + "/" + object_name
+        url = "https://" + self.host + ":" + self.port + "/" + path
+        print url
+
     def _get_cert_from_val_cred(self, domain, val_cred, cert_obj):
         crypto_val_cred = None
         certs = None
