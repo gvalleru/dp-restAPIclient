@@ -15,12 +15,13 @@ class DpRestClient:
         self.proxies = proxies
         self.verify = verify
 
-    def _dp_api_resp_dict(self, url):
+    def _dp_api_resp_dict(self, url, parms = ""):
         res = requests.get(
             url,
             auth=HTTPBasicAuth(username=self.username, password=self.password),
             proxies=self.proxies,
-            verify=self.verify)
+            verify=self.verify,
+            params=parms)
 
         return json.loads(res.content)
 
@@ -34,8 +35,10 @@ class DpRestClient:
 
     def get_object_status(self, domain, class_name, object_name):
         path = "/mgmt/config/" + domain + "/" + class_name + "/" + object_name
-        url = "https://" + self.host + ":" + self.port + "/" + path
+        url = "https://" + self.host + ":" + self.port + path
         print url
+        query = "state=1"
+        return self._dp_api_resp_dict(url, query)
 
     def _get_cert_from_val_cred(self, domain, val_cred, cert_obj):
         crypto_val_cred = None
