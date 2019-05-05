@@ -15,19 +15,43 @@ class DpRestClient:
         self.proxies = proxies
         self.verify = verify
 
-    def _dp_api_resp_dict(self, url, parms = ""):
-        res = requests.get(
-            url,
-            auth=HTTPBasicAuth(username=self.username, password=self.password),
-            proxies=self.proxies,
-            verify=self.verify,
-            params=parms)
+    def _dp_api_resp(self, url, method="get", params="", data=""):
+        if method == "get":
+            res = requests.get(
+                url,
+                auth=HTTPBasicAuth(username=self.username, password=self.password),
+                proxies=self.proxies,
+                verify=self.verify,
+                params=params)
+        elif method == "put":
+            res = requests.put(
+                url,
+                data=data,
+                auth=HTTPBasicAuth(username=self.username, password=self.password),
+                proxies=self.proxies,
+                verify=self.verify)
+        elif method == "post":
+            res = requests.post(
+                url,
+                data=data,
+                auth=HTTPBasicAuth(username=self.username, password=self.password),
+                proxies=self.proxies,
+                verify=self.verify)
+        elif method == "delete":
+            res = requests.delete(
+                url,
+                auth=HTTPBasicAuth(username=self.username, password=self.password),
+                proxies=self.proxies,
+                verify=self.verify)
 
-        return json.loads(res.content)
+        # return json.loads(res.content)
+        return res
 
     def get_domains_list(self):
         url = "https://" + self.host + ":" + self.port + "/mgmt/domains/config/"
-        domains_config = self._dp_api_resp_dict(url)
+        response = self._dp_api_resp(url)
+        # domains_config = self._dp_api_resp(url)
+        domains_config = json.loads(response.content)
         domains = []
         for domain_config in domains_config["domain"]:
             domains.append(domain_config["name"])
@@ -38,7 +62,8 @@ class DpRestClient:
         url = "https://" + self.host + ":" + self.port + path
         print url
         query = "state=1"
-        return self._dp_api_resp_dict(url, query)
+        response = self._dp_api_resp(url, params=query)
+        return json.loads(response.content)
 
     def _get_cert_from_val_cred(self, domain, val_cred, cert_obj):
         crypto_val_cred = None
@@ -68,34 +93,39 @@ class DpRestClient:
         del val_cred['_links']
         val_cred['Certificate'] = certs
         data = json.dumps({"CryptoValCred": val_cred})
-        r = requests.put(
-            url,
-            data=data,
-            auth=HTTPBasicAuth(username=self.username, password=self.password),
-            proxies=self.proxies,
-            verify=self.verify)
-        return r.status_code, json.loads(r.content)
-        # print self._dp_api_resp_dict(url)
+        # r = requests.put(
+         #   url,
+         #   data=data,
+         #   auth=HTTPBasicAuth(username=self.username, password=self.password),
+         #   proxies=self.proxies,
+         #   verify=self.verify)
+        response = self._dp_api_resp(url, method="put", data=data)
+        return response.status_code, json.loads(response.content)
+        # print self._dp_api_resp(url)
 
     def save_config(self, domain):
         url = "https://" + self.host + ":" + self.port + "/mgmt/actionqueue/" + domain
         data = '{"SaveConfig":""}'
-        res = requests.post(url,
-                            data=data,
-                            auth=HTTPBasicAuth(username=self.username, password=self.password),
-                            proxies=self.proxies,
-                            verify=self.verify)
-        if res.status_code == 200:
+        # res = requests.post(url,
+         #                   data=data,
+          #                  auth=HTTPBasicAuth(username=self.username, password=self.password),
+           #                 proxies=self.proxies,
+            #                verify=self.verify)
+        response = self._dp_api_resp(url, method="post", data=data)
+        if response.status_code == 200:
             print "configuration saved"
+        else:
+            print "Unable to save configuration: " + response.content
 
     def remove_cert_from_domain(self, domain, cert_obj):
         url = "https://" + self.host + ":" + self.port + "/mgmt/config/"+domain+"/CryptoCertificate/"+cert_obj
-        res = requests.delete(url,
-                              auth=HTTPBasicAuth(username=self.username, password=self.password),
-                              proxies=self.proxies,
-                              verify=self.verify)
-        res_dict = json.loads(res.content)
-        if res.status_code == 200:
+        # res = requests.delete(url,
+        #                      auth=HTTPBasicAuth(username=self.username, password=self.password),
+        #                       proxies=self.proxies,
+        #                       verify=self.verify)
+        response = self._dp_api_resp(url, method="delete")
+        res_dict = json.loads(response.content)
+        if response.status_code == 200:
             print "Certificate object {} deleted from {}".format(cert_obj, domain)
         else:
             print "Issue in removing Cert object {} from {}".format(cert_obj, domain)
@@ -103,7 +133,8 @@ class DpRestClient:
 
     def remove_cert_in_crypto_val_cred(self, domain, cert_obj):
         url = "https://"+self.host+":"+self.port+"/mgmt/config/"+domain+"/CryptoValCred"
-        res_dict = self._dp_api_resp_dict(url)
+        response = self._dp_api_resp(url)
+        res_dict = json.loads(response.content)
         if isinstance(res_dict["CryptoValCred"], list):
             for CryptoValCred in res_dict["CryptoValCred"]:
                 final_crypto_val_cred, final_certs = self._get_cert_from_val_cred(domain, CryptoValCred, cert_obj)
