@@ -16,6 +16,11 @@ class DpRestClient:
         self.verify = verify
 
     def _dp_api_resp(self, url, method="get", params="", data=""):
+        """
+        private method which will return http response. Default http method is
+        get, if you want to different method then pass it to method parm. Also
+        to pass query string use parms option, data to post or put data.
+        """
         if method == "get":
             res = requests.get(
                 url,
@@ -47,6 +52,11 @@ class DpRestClient:
         return res
 
     def get_domains_list(self):
+        """
+        It will return all the domains in a list including default domain. Its up to user
+        to ignore default domain.
+        :return: list
+        """
         url = "https://" + self.host + ":" + self.port + "/mgmt/domains/config/"
         response = self._dp_api_resp(url)
         domains_config = json.loads(response.content)
@@ -56,6 +66,12 @@ class DpRestClient:
         return domains
 
     def get_object_status(self, domain, class_name, object_name):
+        """
+        :param domain: name of the datapower domain
+        :param class_name: class name. Ex: CryptoCertificate, CryptoIdentCred, CertMonitor, SSLProxyProfile, HTTPSSourceProtocolHandler
+        :param object_name: name of the object with in the class name. Ex: cert obj name, https handler name
+        :return: dict response about full status of object_name
+        """
         path = "/mgmt/config/" + domain + "/" + class_name + "/" + object_name
         url = "https://" + self.host + ":" + self.port + path
         print url
@@ -63,7 +79,16 @@ class DpRestClient:
         response = self._dp_api_resp(url, params=query)
         return json.loads(response.content)
 
-    def _get_cert_from_val_cred(self, domain, val_cred, cert_obj):
+    def _return_val_cred_without_input_cert(self, val_cred, cert_obj):
+        """
+        This is a private method which will remove cert_obj with val_cred dict object. Returns name of
+        crypto val cred and the new list of certs that are to be under crypto val cred by excluding
+        cert_obj.
+        :param val_cred: validation cred object
+        :param cert_obj: cert_obj to be removed from validation cred object
+        :return: Returns a tulip that contains val_cred_object and new list of cert of objects. If there
+        is only one cert obj then a string is returned. If no cert_obj's left then None is returned.
+        """
         crypto_val_cred = None
         certs = None
 
@@ -86,7 +111,17 @@ class DpRestClient:
         else:
             return crypto_val_cred, certs
 
-    def _update_certs_in_val_cred(self, domain, val_cred, certs):
+    def update_certs_in_val_cred(self, domain, val_cred, certs):
+        """
+        There is no add or remove operations for list of cert obj's under a val cred. So, to do this operation
+        we its just to get list of certs obj's then added or remove cert to or from that list and then add
+        that cert obj's lists to val cred.
+        :param domain: domain under which you want to perform this operation.
+        :param val_cred: val cred under which you want to update list of certs. These certs are new certs linked
+        to this val cred.
+        :param certs: list of cert obj's that will be new certs under val cred.
+        :return: tulip with response code and dict obj with the response of putting new cert obj's to val cred.
+        """
         url = "https://" + self.host + ":" + self.port + "/mgmt/config/" + domain + "/CryptoValCred/" + val_cred["name"]
         del val_cred['_links']
         val_cred['Certificate'] = certs
@@ -95,6 +130,11 @@ class DpRestClient:
         return response.status_code, json.loads(response.content)
 
     def save_config(self, domain):
+        """
+        Save the configuration after making changes to a domain.
+        :param domain: domain name
+        :return: None
+        """
         url = "https://" + self.host + ":" + self.port + "/mgmt/actionqueue/" + domain
         data = '{"SaveConfig":""}'
         response = self._dp_api_resp(url, method="post", data=data)
@@ -104,6 +144,12 @@ class DpRestClient:
             print "Unable to save configuration: " + response.content
 
     def remove_cert_from_domain(self, domain, cert_obj):
+        """
+        Remove a cert obj from a domain.
+        :param domain: domain in which you want to perform this change.
+        :param cert_obj: cert obj you want to remove with in a domain.
+        :return: None
+        """
         url = "https://" + self.host + ":" + self.port + "/mgmt/config/"+domain+"/CryptoCertificate/"+cert_obj
         response = self._dp_api_resp(url, method="delete")
         res_dict = json.loads(response.content)
@@ -114,24 +160,34 @@ class DpRestClient:
             print "Error: {}".format(res_dict["error"])
 
     def remove_cert_in_crypto_val_cred(self, domain, cert_obj):
+        """
+        This method will remove a certificate object from any of the validation cred objects
+        with in a provided domain.
+        :param domain: domain in which you want to perform this operation.
+        :param cert_obj: cert obj you want to remove from all the val cred's under a domain.
+        :return: None
+        """
         url = "https://"+self.host+":"+self.port+"/mgmt/config/"+domain+"/CryptoValCred"
         response = self._dp_api_resp(url)
         res_dict = json.loads(response.content)
+        # One bad response from datapower for CryptoValCred is that if there is only one
+        # CryptoValCred in a domain the return type is string, if more than one CryptoValCred
+        # then return type is list. Whats up with that IBM. Please be consistent with your 
+        # data type. So, we are handing this inconsistency with isinstance builtin method.
         if isinstance(res_dict["CryptoValCred"], list):
             for CryptoValCred in res_dict["CryptoValCred"]:
-                final_crypto_val_cred, final_certs = self._get_cert_from_val_cred(domain, CryptoValCred, cert_obj)
+                final_crypto_val_cred, final_certs = self._return_val_cred_without_input_cert(CryptoValCred, cert_obj)
                 if final_crypto_val_cred is not None:
-                    resp_code, resp_content = self._update_certs_in_val_cred(domain, CryptoValCred, final_certs)
+                    resp_code, resp_content = self.update_certs_in_val_cred(domain, CryptoValCred, final_certs)
                     if resp_code == 200:
                         print "Removed {} from {} on domain {}".format(cert_obj, final_crypto_val_cred,
                                                                        domain)
-
         else:
-            final_crypto_val_cred, final_certs = self._get_cert_from_val_cred(domain,
-                                                                              res_dict["CryptoValCred"],
-                                                                              cert_obj)
+            final_crypto_val_cred, final_certs = self._return_val_cred_without_input_cert(
+                                                                            res_dict["CryptoValCred"],
+                                                                            cert_obj)
             if final_certs is not None:
-                resp_code, resp_content = self._update_certs_in_val_cred(domain, res_dict["CryptoValCred"], final_certs)
+                resp_code, resp_content = self.update_certs_in_val_cred(domain, res_dict["CryptoValCred"], final_certs)
                 print resp_code
                 if resp_code == 200:
                     print "Removed {} from {} in domain {}".format(cert_obj, final_crypto_val_cred, domain)
