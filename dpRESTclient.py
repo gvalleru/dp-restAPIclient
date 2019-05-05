@@ -44,13 +44,11 @@ class DpRestClient:
                 proxies=self.proxies,
                 verify=self.verify)
 
-        # return json.loads(res.content)
         return res
 
     def get_domains_list(self):
         url = "https://" + self.host + ":" + self.port + "/mgmt/domains/config/"
         response = self._dp_api_resp(url)
-        # domains_config = self._dp_api_resp(url)
         domains_config = json.loads(response.content)
         domains = []
         for domain_config in domains_config["domain"]:
@@ -93,24 +91,12 @@ class DpRestClient:
         del val_cred['_links']
         val_cred['Certificate'] = certs
         data = json.dumps({"CryptoValCred": val_cred})
-        # r = requests.put(
-         #   url,
-         #   data=data,
-         #   auth=HTTPBasicAuth(username=self.username, password=self.password),
-         #   proxies=self.proxies,
-         #   verify=self.verify)
         response = self._dp_api_resp(url, method="put", data=data)
         return response.status_code, json.loads(response.content)
-        # print self._dp_api_resp(url)
 
     def save_config(self, domain):
         url = "https://" + self.host + ":" + self.port + "/mgmt/actionqueue/" + domain
         data = '{"SaveConfig":""}'
-        # res = requests.post(url,
-         #                   data=data,
-          #                  auth=HTTPBasicAuth(username=self.username, password=self.password),
-           #                 proxies=self.proxies,
-            #                verify=self.verify)
         response = self._dp_api_resp(url, method="post", data=data)
         if response.status_code == 200:
             print "configuration saved"
@@ -119,10 +105,6 @@ class DpRestClient:
 
     def remove_cert_from_domain(self, domain, cert_obj):
         url = "https://" + self.host + ":" + self.port + "/mgmt/config/"+domain+"/CryptoCertificate/"+cert_obj
-        # res = requests.delete(url,
-        #                      auth=HTTPBasicAuth(username=self.username, password=self.password),
-        #                       proxies=self.proxies,
-        #                       verify=self.verify)
         response = self._dp_api_resp(url, method="delete")
         res_dict = json.loads(response.content)
         if response.status_code == 200:
