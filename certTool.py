@@ -1,10 +1,13 @@
 from OpenSSL import crypto
+from datetime import datetime
+import pytz
 
 
 class CertTool:
     def __init__(self, cert):
         with open(cert) as f:
             self.cert = crypto.load_certificate(crypto.FILETYPE_PEM, f.read())
+        self.my_tz = pytz.timezone('US/Pacific')
 
     def get_subject(self):
         """
@@ -28,6 +31,19 @@ class CertTool:
         if '*' in _str:
             _str = _str.replace('*', 'star')
         return _str
+
+    @staticmethod
+    def just_base64(cert_file):
+        with open(cert_file) as f:
+            cert_b64 =f.read()
+            cert_b64 = cert_b64.replace('-----BEGIN CERTIFICATE-----', '')
+            cert_b64 = cert_b64.replace('-----END CERTIFICATE-----', '')
+            cert_b64 = cert_b64.replace('\n', '')
+        return cert_b64
+
+    def get_expiry_date(self):
+        dt_utc = self.cert.get_notAfter()
+        return dt_utc
 
     def get_cert_object(self, obj):
         if obj == "cn":

@@ -163,6 +163,18 @@ class DpRestClient:
             print "Issue in removing Cert object {} from {}".format(cert_obj, domain)
             print "Error: {}".format(res_dict["error"])
 
+    @staticmethod
+    def gen_cert_obj(cert_name, content):
+        cert_obj = {
+                    "file": {
+                            "name": "",
+                            "content": ""
+                            }
+                    }
+        cert_obj["file"]["name"] = cert_name
+        cert_obj["file"]["content"] = content
+        return cert_obj
+
     def remove_cert_in_crypto_val_cred(self, domain, cert_obj):
         """
         This method will remove a certificate object from any of the validation cred objects
