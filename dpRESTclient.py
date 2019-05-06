@@ -7,6 +7,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class DpRestClient:
+    """
+    Datapower documentation:
+    https://www.ibm.com/support/knowledgecenter/en/SS9H2Y_7.7.0/com.ibm.dp.doc/restmgtinterface.html
+    """
     def __init__(self, host, port, username, password, proxies, verify=False):
         self.host = host
         self.port = str(port)

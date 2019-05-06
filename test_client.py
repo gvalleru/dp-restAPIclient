@@ -1,22 +1,16 @@
 import dpRESTclient
+import certTool
 import yaml
-from OpenSSL import crypto
-
-with open("C:\Users\gvalleru\Documents\certs\star.gtefinancial.org_08022020.crt.cer") as f:
-    my_cert = crypto.load_certificate(crypto.FILETYPE_PEM, f.read())
-print my_cert.get_notAfter()
-x = my_cert.get_subject().get_components()
-print x
-y = {k:v for k, v in x}
-cn = y['CN']
-print cn
-if '*' in cn:
-    print "true"
-    cn = cn.replace('*', 'star')
-    print cn
+# from OpenSSL import crypto
 
 
-
+# testing certTool
+cert_file = "C:\Users\gvalleru\Documents\certs\star.gtefinancial.org_08022020.crt.cer"
+cert = certTool.CertTool(cert_file)
+print "subject name: {}".format(cert.get_subject())
+print "CN: {}".format(cert.get_cn())
+print "CN using get_cert_object: {}".format(cert.get_cert_object("cn"))
+print "Normalized CN: {}".format(cert.normalize_name(cert.get_cn()))
 
 conf_yaml = 'config.yaml'
 with open(conf_yaml, 'r') as c:
