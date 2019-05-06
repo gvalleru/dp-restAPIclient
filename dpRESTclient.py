@@ -25,33 +25,35 @@ class DpRestClient:
         get, if you want to different method then pass it to method parm. Also
         to pass query string use parms option, data to post or put data.
         """
-        if method == "get":
+        if method.lower() == "get":
             res = requests.get(
                 url,
                 auth=HTTPBasicAuth(username=self.username, password=self.password),
                 proxies=self.proxies,
                 verify=self.verify,
                 params=params)
-        elif method == "put":
+        elif method.lower() == "put":
             res = requests.put(
                 url,
                 data=data,
                 auth=HTTPBasicAuth(username=self.username, password=self.password),
                 proxies=self.proxies,
                 verify=self.verify)
-        elif method == "post":
+        elif method.lower() == "post":
             res = requests.post(
                 url,
                 data=data,
                 auth=HTTPBasicAuth(username=self.username, password=self.password),
                 proxies=self.proxies,
                 verify=self.verify)
-        elif method == "delete":
+        elif method.lower() == "delete":
             res = requests.delete(
                 url,
                 auth=HTTPBasicAuth(username=self.username, password=self.password),
                 proxies=self.proxies,
                 verify=self.verify)
+        else:
+            res = "Method "+method+" not supported"
 
         return res
 
@@ -165,6 +167,11 @@ class DpRestClient:
 
     @staticmethod
     def gen_cert_obj(cert_name, content):
+        """
+        :param cert_name: Name of certificate file
+        :param content: Content of the certificate in base64
+        :return: dict object format to create cert file
+        """
         cert_obj = {
                     "file": {
                             "name": "",
@@ -174,6 +181,35 @@ class DpRestClient:
         cert_obj["file"]["name"] = cert_name
         cert_obj["file"]["content"] = content
         return cert_obj
+
+    def upload_file(self, domain, _dir, cert_file_dict):
+        url = "https://"+self.host+":"+self.port+"/mgmt/filestore/"+domain+"/"+_dir
+        cert_file_json = json.dumps(cert_file_dict)
+        resp = self._dp_api_resp(url, method="post", data=cert_file_json)
+        return resp
+
+    def upload_cert(self, domain, _dir, cert_file_dict):
+        resp = self.upload_file(domain, _dir, cert_file_dict)
+        return resp
+
+    def create_crypto_cert(self, domain, crypto_cert_name, cert_filename):
+
+        url = "https://"+self.host+":"+self.port+"/mgmt/config/"+domain+"/CryptoCertificate"
+        data = {"CryptoCertificate":
+                    {"name": "",
+                     "mAdminState": "enabled",
+                     "Filename": "",
+                     "Password": "",
+                     "PasswordAlias": "off",
+                     "Alias": "",
+                     "IgnoreExpiration": "on"
+                     }
+                }
+        data["CryptoCertificate"]["name"] = crypto_cert_name
+        data["CryptoCertificate"]["Filename"] = cert_filename
+        data_json = json.dumps(data)
+        resp = self._dp_api_resp(url, method="POST", data=data_json)
+        return resp
 
     def remove_cert_in_crypto_val_cred(self, domain, cert_obj):
         """

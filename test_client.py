@@ -17,7 +17,7 @@ exp_date = cert.get_expiry_date()
 # print "Expiry date: {}".format(exp_date)
 cert_base64 = cert.just_base64(cert_file)
 # print cert_base64
-cert_file_name = final_cn + '_' + exp_date[:8]
+cert_name = final_cn + '_' + exp_date[:8]
 conf_yaml = 'config.yaml'
 with open(conf_yaml, 'r') as c:
     config = yaml.load(c)
@@ -30,5 +30,11 @@ proxies = config['10.64.1.101']['proxies']
 
 dp = dpRESTclient.DpRestClient(host, port, username, password, proxies)
 # print dp.get_domains_list()
-print dp.get_object_status('WSProxyDomain', 'CryptoCertificate', 'aperio-cashedge-prod.adsyf.syfbank.com_08252020')
-cert_create_me = dp.gen_cert_obj(cert_file_name, cert_base64)
+# print dp.get_object_status('WSProxyDomain', 'CryptoCertificate', 'aperio-cashedge-prod.adsyf.syfbank.com_08252020')
+cert_file_name = cert_name+".crt"
+create_cert_data = dp.gen_cert_obj(cert_file_name, cert_base64)
+resp = dp.upload_cert("STGWSProxyDomain", "cert", create_cert_data)
+print resp.content
+resp = dp.create_crypto_cert("STGWSProxyDomain", cert_name, "cert:///"+cert_file_name)
+print resp.content
+print dp.get_object_status("STGWSProxyDomain", "CryptoCertificate", cert_name)
