@@ -29,8 +29,7 @@ password = config['10.64.1.101']['password']
 proxies = config['10.64.1.101']['proxies']
 
 dp = dpRESTclient.DpRestClient(host, port, username, password, proxies)
-# print dp.get_domains_list()
-# print dp.get_object_status('WSProxyDomain', 'CryptoCertificate', 'aperio-cashedge-prod.adsyf.syfbank.com_08252020')
+print dp.get_domains_list()
 cert_file_name = cert_name+".crt"
 create_cert_data = dp.gen_cert_obj(cert_file_name, cert_base64)
 resp = dp.upload_cert("STGWSProxyDomain", "cert", create_cert_data)
