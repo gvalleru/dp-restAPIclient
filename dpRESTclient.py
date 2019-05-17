@@ -11,7 +11,7 @@ class DpRestClient:
     Datapower documentation:
     https://www.ibm.com/support/knowledgecenter/en/SS9H2Y_7.7.0/com.ibm.dp.doc/restmgtinterface.html
     """
-    def __init__(self, host, port, username, password, proxies, verify=False):
+    def __init__(self, host, port, username, password, proxies='{}', verify=False):
         self.host = host
         self.port = str(port)
         self.username = username
@@ -25,35 +25,62 @@ class DpRestClient:
         get, if you want to different method then pass it to method parm. Also
         to pass query string use parms option, data to post or put data.
         """
-        if method.lower() == "get":
-            res = requests.get(
-                url,
-                auth=HTTPBasicAuth(username=self.username, password=self.password),
-                proxies=self.proxies,
-                verify=self.verify,
-                params=params)
-        elif method.lower() == "put":
-            res = requests.put(
-                url,
-                data=data,
-                auth=HTTPBasicAuth(username=self.username, password=self.password),
-                proxies=self.proxies,
-                verify=self.verify)
-        elif method.lower() == "post":
-            res = requests.post(
-                url,
-                data=data,
-                auth=HTTPBasicAuth(username=self.username, password=self.password),
-                proxies=self.proxies,
-                verify=self.verify)
-        elif method.lower() == "delete":
-            res = requests.delete(
-                url,
-                auth=HTTPBasicAuth(username=self.username, password=self.password),
-                proxies=self.proxies,
-                verify=self.verify)
+        if self.proxies != "{}":
+            if method.lower() == "get":
+                res = requests.get(
+                    url,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    proxies=self.proxies,
+                    verify=self.verify,
+                    params=params)
+            elif method.lower() == "put":
+                res = requests.put(
+                    url,
+                    data=data,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    proxies=self.proxies,
+                    verify=self.verify)
+            elif method.lower() == "post":
+                res = requests.post(
+                    url,
+                    data=data,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    proxies=self.proxies,
+                    verify=self.verify)
+            elif method.lower() == "delete":
+                res = requests.delete(
+                    url,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    proxies=self.proxies,
+                    verify=self.verify)
+            else:
+                res = "Method "+method+" not supported"
         else:
-            res = "Method "+method+" not supported"
+            if method.lower() == "get":
+                res = requests.get(
+                    url,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    verify=self.verify,
+                    params=params)
+            elif method.lower() == "put":
+                res = requests.put(
+                    url,
+                    data=data,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    verify=self.verify)
+            elif method.lower() == "post":
+                res = requests.post(
+                    url,
+                    data=data,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    verify=self.verify)
+            elif method.lower() == "delete":
+                res = requests.delete(
+                    url,
+                    auth=HTTPBasicAuth(username=self.username, password=self.password),
+                    verify=self.verify)
+            else:
+                res = "Method " + method + " not supported"
 
         return res
 
@@ -182,10 +209,10 @@ class DpRestClient:
         cert_obj["file"]["content"] = content
         return cert_obj
 
-    def upload_file(self, domain, _dir, cert_file_dict):
+    def upload_file(self, domain, _dir, file_dict):
         url = "https://"+self.host+":"+self.port+"/mgmt/filestore/"+domain+"/"+_dir
-        cert_file_json = json.dumps(cert_file_dict)
-        resp = self._dp_api_resp(url, method="post", data=cert_file_json)
+        file_json = json.dumps(file_dict)
+        resp = self._dp_api_resp(url, method="post", data=file_json)
         return resp
 
     def upload_cert(self, domain, _dir, cert_file_dict):
@@ -222,7 +249,7 @@ class DpRestClient:
         url = "https://"+self.host+":"+self.port+"/mgmt/config/"+domain+"/CryptoValCred"
         response = self._dp_api_resp(url)
         res_dict = json.loads(response.content)
-        # One bad response from datapower for CryptoValCred is that if there is only one
+        # Inconsistent response from datapower for CryptoValCred is that if there is only one
         # CryptoValCred in a domain the return type is string, if more than one CryptoValCred
         # then return type is list. Whats up with that IBM. Please be consistent with your 
         # data type. So, we are handing this inconsistency with isinstance builtin method.

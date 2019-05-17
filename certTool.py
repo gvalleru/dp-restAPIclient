@@ -33,13 +33,22 @@ class CertTool:
         return _str
 
     @staticmethod
-    def just_base64(cert_file):
+    def pem_cert_to_base64(cert_file):
         with open(cert_file) as f:
             cert_b64 =f.read()
             cert_b64 = cert_b64.replace('-----BEGIN CERTIFICATE-----', '')
             cert_b64 = cert_b64.replace('-----END CERTIFICATE-----', '')
             cert_b64 = cert_b64.replace('\n', '')
         return cert_b64
+
+    @staticmethod
+    def pem_key_to_base64(key_file):
+        with open(key_file) as f:
+            key_b64 = f.read()
+            key_b64 = key_b64.replace('-----BEGIN RSA PRIVATE KEY-----', '')
+            key_b64 = key_b64.replace('-----END RSA PRIVATE KEY-----', '')
+            key_b64 = key_b64.replace('\n', '')
+        return key_b64
 
     def get_expiry_date(self):
         dt_utc = self.cert.get_notAfter()

@@ -15,7 +15,7 @@ final_cn = cert.normalize_name(cn)
 # print "Normalized CN: {}".format(final_cn)
 exp_date = cert.get_expiry_date()
 # print "Expiry date: {}".format(exp_date)
-cert_base64 = cert.just_base64(cert_file)
+cert_base64 = cert.pem_cert_to_base64(cert_file)
 # print cert_base64
 cert_name = final_cn + '_' + exp_date[:8]
 conf_yaml = 'config.yaml'
