@@ -28,8 +28,12 @@ class CertTool:
 
     @staticmethod
     def normalize_name(_str):
+        # Replacing * with star in certificate name
         if '*' in _str:
             _str = _str.replace('*', 'star')
+
+        # Only keeping alphanumeric and . or _ or - in the provided string
+        _str = ''.join(e for e in _str if e.isalnum() or e in '._-')
         return _str
 
     @staticmethod

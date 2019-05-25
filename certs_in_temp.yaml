@@ -1,0 +1,108 @@
+domains_from:
+  - name: AllyDomain
+    certs:
+      - bits-pay-ws-prod.ally.com_12_10_2019
+  - name: BBnTDomain
+    certs:
+      - ws.popmoney.bbtnet.com_01192020
+  - name: CapOneWSDomain
+    certs:
+      - CapOne_installedon09212013
+  - name: CitiWSDomain
+    certs:
+      - citigroupsoa.dsig.citigroup.com_05142020
+  - name: MobilitDomain
+    certs:
+      - cashedge.mynycb.com_06012019
+      - cashedge.mynycb.com_03082020
+      - cashedge.mynycb.com_03142020
+      - mbprod.prkcorp.com_10102020
+      - star.gtefinancial.org_08022020
+      - tp.sdccu.com_11032020
+      - VoyagerTP.comerica.com_02092020
+  - name: RegionsBankDomain
+    certs:
+      - oaofiserv.regions.com_10212020
+      - rxpmobile.regions.com_03182020
+  - name: UnionBankDomain
+    certs:
+      - mub-ceclient-prd.purepoint.com_11232019
+      - ubceclient.unionbank.com_01072021
+  - name: VerifyNowDomain
+    certs:
+      - ws.popmoney.bbtnet.com_02272019
+      - xml-b2b-igw.efidelity_12012019
+      - b2b-igw.efidelity.com_02022020
+      - VerifyNow-Salem5-20061-prod.fivision.com05_11_2020
+      - webservicesgateway.schwab.com_09132019
+      - Charles_Schwab_Co_Inc_09172020
+      - IntelligentPortfolioFiservSigning.schwab.com_12302019
+      - tiaa-cref-web-service-consumer.tiaa-cref.org_01272021
+  - name: WSProxyDomain
+    certs:
+      - fiserv-ups-msgbroker-pi-prod.fmr.com_6_15_19
+      - cashedge.mynycb.com_06012019.cer
+      - aperio-cashedge-prod.adsyf.syfbank.com08252020
+      - cashedge-17.americafirst.com_08292020
+      - VerifyNow-Salem5-20061-prod-export_05112020
+      - olb-uswiprap1.nam.nsroot.net_1042019
+      - apisvcs-gtwy-mauth.suntrust.com_09192019
+      - mwdal.app.syfbank.com.crt_12072019
+      - bbp-prod.associatedbank.com_10012020
+      - gtcrd-cblla01p.nam.nsroot.net_11102019
+      - bac-outbound.onefiserv.net_11082019
+      - pr-client.investorsbank.avoka-transact.com_09092019
+      - cashedgesso.bfsfcu.org_1172020
+      - ExternalTransferSvc.Becu.org_12042019
+      - pr-client.bmoharris.avoka-transact.com_09172019
+      - cashedge.mynycb.com_03162018
+      - citigroupsoa.dsig.citigroup.com_05142020
+      - mwdal.app.syfbank.com_120719.crt
+      - VerifyNow-DimeCommBank-20074-prod.fivision.com_04242020
+      - apisvcs-gtwy-mauth.suntrust.com_03202020
+      - ets.nationwide.com.crt_06112020
+      - p2pservices.prd1.digitalinsight.com_08032019
+      - cashedgesigning_eastwestbank_com_121919
+      - builder.bankofthewest.com_08182019.crt
+      - pr-client.hsbc-na.transactcentral.com_05212019
+      - prod.esb.corp.citizensbank.com_07162019
+      - ciam.bmo.com_05082020
+      - www.onlinebanking.pnc.com_06212020
+      - sfprod.valleynationalbank.com_09_06_2020.cer
+      - sms.fnb-online.mobi.com_10232020.crt
+      - cashedge.golden1.com_10122020
+      - soa.tdgroup.com_11182019
+      - soa.tdgroup.com_12302020
+      - mxp.afcu.kivagroup.com_01042021
+      - mwphx.app.syfbank.com_04172020
+      - cashedgesvc.fnb-onlinebankingcenter.com_01222021
+      - cashedgesvc.fnb-onlinebankingcenter.com_Jan222021
+      - VoyagerTP.comerica.com_02092020
+      - builder.bankofthewest.com_03112020
+      - transferapi.firstrepublic.com_05092021
+      - esb.compassbnk.com_04182020
+      - pgw.53.com_05072020
+      - prodfnapidaa.firstrepublic.com_03202021
+domains_src_dest_mapping:
+  - src: WSProxyDomain
+    dest: CEDomainPod1
+  - src: VerifyNowDomain
+    dest: CEDomainPod2
+  - src: UnionBankDomain
+    dest: CEDomainPod2
+  - src: RegionsBankDomain
+    dest: CEDomainPod2
+  - src: MobilitDomain
+    dest: CEDomainPod2
+  - src: CitiWSDomain
+    dest: CEDomainPod1
+  - src: CapOneWSDomain
+    dest: CapOneWSDomain
+  - src: BBnTDomain
+    dest: CEDomainPod2
+  - src: AllyDomain
+    dest: AllyDomain
+  - src: AllyCertDomain
+    dest: AllyCertDomain
+  - src: CertCommonDomain
+    dest: CertCommonDomain

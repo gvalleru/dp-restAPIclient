@@ -1,0 +1,21 @@
+domains_from:
+  - name: AllyCertDomain
+    certs:
+      - bits-pay-ws-nonprod.ally.com_10102019
+  - name: CertCommonDomain
+    certs:
+      - apisvcs-gtwy-mauth-nonprod.suntrust.com_032020
+      - bits-pay-ws-nonprod.ally.com_10102019
+      - cashedge-test-17.americafirst.com081820220
+      - cashedgeqa.golden1.com_10022020.crt
+      - np-client_bmoharris_avoka-transact_com.crt_09172019
+      - qa.esb.corp.citizensbank.com.crt_06052019
+      - zelle.testqa.zionsbank.com_02072020
+      - ceclient.unionbank.com_15052010.crt
+      - certws.ft.cashedge.com.cert
+      - sf.valleynationalbank.com_08092020
+      - aperio-cashedge-situat.adsyf.syfbank.com_08042020
+      - zellepro.santanderbank.com_02062020.crt
+      - ExternalTransfersTest.Messaging.BECU.org_03262021
+      - certfnapidaa.frbnp3.com_03202021
+      - qa.esb.corp.citizensbank.com_04292020

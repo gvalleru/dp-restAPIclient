@@ -144,6 +144,15 @@ class DpRestClient:
         else:
             return crypto_val_cred, certs
 
+    def create_newcertlinks_val_cred(self, domain, val_cred):
+        val_cred_name = val_cred['CryptoValCred']['name']
+        print val_cred_name
+        url = "https://"+self.host+ ":"+self.port+"/mgmt/config/"+domain+"/CryptoValCred/"+val_cred_name
+        data = json.dumps(val_cred)
+        resp = self._dp_api_resp(url, method="PUT", data=data)
+        return json.loads(resp.content)
+
+    # This is for internal purpose only
     def update_certs_in_val_cred(self, domain, val_cred, certs):
         """
         There is no add or remove operations for list of cert obj's under a val cred. So, to do this operation
@@ -192,6 +201,12 @@ class DpRestClient:
             print "Issue in removing Cert object {} from {}".format(cert_obj, domain)
             print "Error: {}".format(res_dict["error"])
 
+    def del_file(self, domain, file_path):
+        url = "https://"+self.host+":"+self.port+"/mgmt/filestore/"+domain+"/"+file_path
+        resp = self._dp_api_resp(url, method="delete")
+        resp_dict = json.loads(resp.content)
+        return resp_dict
+
     @staticmethod
     def gen_cert_obj(cert_name, content):
         """
@@ -219,6 +234,11 @@ class DpRestClient:
         resp = self.upload_file(domain, _dir, cert_file_dict)
         return resp
 
+    def get_file(self, domain, path):
+        url = "https://"+self.host+":"+self.port+"/mgmt/filestore/"+domain+"/"+path
+        resp = self._dp_api_resp(url)
+        return resp
+
     def create_crypto_cert(self, domain, crypto_cert_name, cert_filename):
 
         url = "https://"+self.host+":"+self.port+"/mgmt/config/"+domain+"/CryptoCertificate"
@@ -237,6 +257,23 @@ class DpRestClient:
         data_json = json.dumps(data)
         resp = self._dp_api_resp(url, method="POST", data=data_json)
         return resp
+
+    def get_certs_in_valcred(self, domain, val_cred):
+        url = "https://" + self.host + ":" + self.port + "/mgmt/config/" + domain + "/CryptoValCred/" + val_cred
+        resp = self._dp_api_resp(url)
+        # print resp.content
+        resp_dict = json.loads(resp.content)
+        if "error" in resp_dict.keys():
+            return resp_dict["error"]
+        elif "Certificate" in resp_dict.keys():
+            return resp_dict['Certificate']['value']
+        else:
+            return []
+
+    def get_val_cred_obj(self, domain, valcred_name):
+        url = "https://"+self.host+":"+self.port+"/mgmt/config/"+domain+"/CryptoValCred/"+valcred_name
+        response = self._dp_api_resp(url)
+        return json.loads(response.content)
 
     def remove_cert_in_crypto_val_cred(self, domain, cert_obj):
         """
