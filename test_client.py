@@ -1,6 +1,8 @@
 import dpRESTclient
 import certTool
 import yaml
+import requests
+
 # from OpenSSL import crypto
 
 
@@ -22,18 +24,26 @@ conf_yaml = 'config.yaml'
 with open(conf_yaml, 'r') as c:
     config = yaml.load(c)
 
-host = config['10.64.1.101']['hostname']
-port = config['10.64.1.101']['port']
-username = config['10.64.1.101']['username']
-password = config['10.64.1.101']['password']
-proxies = config['10.64.1.101']['proxies']
+host = config['10.24.64.71']['hostname']
+port = config['10.24.64.71']['port']
+username = config['10.24.64.71']['username']
+password = config['10.24.64.71']['password']
+proxies = config['10.24.64.71']['proxies']
 
 dp = dpRESTclient.DpRestClient(host, port, username, password, proxies)
-print dp.get_domains_list()
-cert_file_name = cert_name+".crt"
-create_cert_data = dp.gen_cert_obj(cert_file_name, cert_base64)
-resp = dp.upload_cert("STGWSProxyDomain", "cert", create_cert_data)
-print resp.content
-resp = dp.create_crypto_cert("STGWSProxyDomain", cert_name, "cert:///"+cert_file_name)
-print resp.content
-print dp.get_object_status("STGWSProxyDomain", "CryptoCertificate", cert_name)
+vcs = dp.get_valcreds_list("AllyDomain")
+print vcs
+for vc in vcs:
+    print dp.get_certs_in_valcred("AllyDomain", vc)
+# url = "https://"+host+":"+str(port)+"/mgmt/config/AllyDomain/CryptoValCred"
+# x = dp._dp_api_resp(url)
+# print x.content
+
+# print dp.get_domains_list()
+# cert_file_name = cert_name+".crt"
+# create_cert_data = dp.gen_cert_obj(cert_file_name, cert_base64)
+# resp = dp.upload_cert("STGWSProxyDomain", "cert", create_cert_data)
+# print resp.content
+# resp = dp.create_crypto_cert("STGWSProxyDomain", cert_name, "cert:///"+cert_file_name)
+# print resp.content
+# print dp.get_object_status("STGWSProxyDomain", "CryptoCertificate", cert_name)

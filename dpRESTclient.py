@@ -258,15 +258,46 @@ class DpRestClient:
         resp = self._dp_api_resp(url, method="POST", data=data_json)
         return resp
 
+    def get_valcreds_list(self, domain):
+        '''
+
+        :param domain: Name of the datapower domain
+        :return: Returns list of validation credentials
+        '''
+        valcreds = []
+        url = "https://" + self.host + ":" + self.port + "/mgmt/config/" + domain + "/CryptoValCred"
+        resp = self._dp_api_resp(url)
+        resp_dict = json.loads(resp.content)
+        vc = resp_dict["CryptoValCred"]
+        if isinstance(vc, list):
+            for CryptoValCred in vc:
+                valcreds.append(CryptoValCred["name"])
+        else:
+            valcreds.append(vc["name"])
+        return valcreds
+
     def get_certs_in_valcred(self, domain, val_cred):
+        '''
+
+        :param domain: Name of the datapower domain
+        :param val_cred: Name of the validation cred.
+        :return: Returns list of cert names from val_cred under domain
+        '''
+        certs = []
         url = "https://" + self.host + ":" + self.port + "/mgmt/config/" + domain + "/CryptoValCred/" + val_cred
         resp = self._dp_api_resp(url)
         # print resp.content
         resp_dict = json.loads(resp.content)
         if "error" in resp_dict.keys():
             return resp_dict["error"]
-        elif "Certificate" in resp_dict.keys():
-            return resp_dict['Certificate']['value']
+        elif "Certificate" in resp_dict['CryptoValCred'].keys():
+            certs_obj = resp_dict['CryptoValCred']['Certificate']
+            if isinstance(certs_obj, list):
+                for cert in certs_obj:
+                    certs.append(cert["value"])
+            else:
+                certs.append(certs_obj["value"])
+            return certs
         else:
             return []
 
